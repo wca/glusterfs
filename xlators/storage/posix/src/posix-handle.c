@@ -21,6 +21,7 @@
 #include <alloca.h>
 #endif
 
+#include "compat-errno.h"
 #include "posix-handle.h"
 #include "posix.h"
 #include "xlator.h"

@@ -204,7 +204,7 @@ trienode_get_word (trienode_t *node, char **bufp)
 
 
 static int
-calc_dist (trienode_t *node, void *data)
+calc_dist (trienode_t *node, const char *data)
 {
         const char *word = NULL;
         int         i = 0;
@@ -287,7 +287,7 @@ collect_closest (trienode_t *node, void *data)
         nodevec_w = data;
         nodevec = nodevec_w->vec;
 
-        if (calc_dist (node, (void *)nodevec_w->word))
+        if (calc_dist (node, nodevec_w->word))
                 return -1;
 
         if (!node->eow || !nodevec->cnt)

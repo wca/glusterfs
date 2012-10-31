@@ -21,9 +21,9 @@
 #include <rpc/xdr.h>
 #include <sys/uio.h>
 
-#ifdef __NetBSD__
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
-#endif /* __NetBSD__ */
+#endif /* HAVE_DIRENT_H */
 
 enum gf_dump_procnum {
         GF_DUMP_NULL,
@@ -43,7 +43,7 @@ enum gf_dump_procnum {
 #define uint64_t u_int64_t
 #endif
 
-#if defined(__NetBSD__)
+#ifdef GF_BSD_HOST_OS
 #define xdr_u_quad_t xdr_u_int64_t
 #define xdr_quad_t   xdr_int64_t
 #define xdr_uint32_t xdr_u_int32_t

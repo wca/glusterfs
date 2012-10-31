@@ -22,6 +22,7 @@
 void
 gf_fuse_unmount (const char *mountpoint, int fd)
 {
+#ifdef GF_LINUX_HOST_OS
         int res;
         int pid;
 
@@ -170,6 +171,10 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname,
         return ret;
 }
 
+/*
+ * Functions below are loosely modelled after similar functions of libfuse
+ */
+
 static int
 fuse_mount_sys (const char *mountpoint, char *fsname,
                 unsigned long mountflags, char *mnt_param, int fd)
@@ -188,8 +193,13 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
 
                 goto out;
         }
+#ifdef __FreeBSD__
+        ret = mount (source, mountpoint, mountflags, mnt_param_mnt);
+#else
         ret = mount (source, mountpoint, fstype, mountflags,
                      mnt_param_mnt);
+#endif
+#ifdef GF_LINUX_HOST_OS
         if (ret == -1 && errno == ENODEV) {
                 /* fs subtype support was added by 79c0b2df aka
                    v2.6.21-3159-g79c0b2d. Probably we have an
@@ -204,12 +214,14 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
                 ret = mount (source, mountpoint, fstype, 0,
                              mnt_param_mnt);
         }
+#endif /* GF_LINUX_HOST_OS */
+
         if (ret == -1)
                 goto out;
         else
                 mounted = 1;
 
-#ifndef __NetBSD__
+#ifdef GF_LINUX_HOST_OS
         if (geteuid () == 0) {
                 char *newmnt = fuse_mnt_resolve_path ("fuse", mountpoint);
                 char *mnt_param_mtab = NULL;
@@ -238,7 +250,7 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
                         goto out;
                 }
         }
-#endif /* __NetBSD__ */
+#endif /* GF_LINUX_HOST_OS */
 
 out:
         if (ret == -1) {
