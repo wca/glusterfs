@@ -226,6 +226,7 @@ AC_CHECK_HEADERS([sys/extattr.h])
 AC_CHECK_HEADERS([openssl/md5.h])
 
 AC_CHECK_HEADERS([perfuse.h])
+AC_CHECK_HEADERS([mntent.h])
 
 AC_CHECK_HEADERS([dirent.h])
 
@@ -305,11 +306,14 @@ AC_ARG_ENABLE([fusermount],
               AC_HELP_STRING([--enable-fusermount],
                              [Build fusermount]))
 
-BUILD_FUSERMOUNT="no"
-if test "x$enable_fusermount" = "xyes"; then
-  FUSERMOUNT_SUBDIR="contrib/fuse-util"
-  BUILD_FUSERMOUNT="yes"
+if test "x$enable_fusermount" = "xno"; then
+  BUILD_FUSERMOUNT="no"
+fi
+
+if test "x$BUILD_FUSERMOUNT" = "xyes"; then
   AC_DEFINE(GF_FUSERMOUNT, 1, [Use our own fusermount])
+  FUSERMOUNT_SUBDIR="contrib/fuse-util"
+  GF_FUSE_CFLAGS="-DFUSERMOUNT_DIR=\\\"\$(bindir)\\\""
 fi
 
 AC_SUBST(FUSERMOUNT_SUBDIR)
@@ -541,14 +545,15 @@ else
     CFLAGS="$saved_CFLAGS $CFLAGS"
 fi
 
+BUILD_FUSERMOUNT="no"
+
 case $host_os in
      linux*)
-     dnl	GF_LINUX_HOST_OS=1
         GF_HOST_OS="GF_LINUX_HOST_OS"
 	GF_CFLAGS="${ARGP_STANDALONE_CPPFLAGS} -O0"
 	GF_GLUSTERFS_CFLAGS="${GF_CFLAGS}"
 	GF_LDADD="${ARGP_STANDALONE_LDADD}"
-	GF_FUSE_CFLAGS="-DFUSERMOUNT_DIR=\\\"\$(bindir)\\\""
+	BUILD_FUSERMOUNT="yes"
 	;;
      solaris*)
         GF_HOST_OS="GF_SOLARIS_HOST_OS"
@@ -577,6 +582,7 @@ case $host_os in
      *freebsd*)
 	GF_HOST_OS="GF_BSD_HOST_OS"
 	GF_CFLAGS="${ARGP_STANDALONE_CPPFLAGS}"
+	GF_CFLAGS="${GF_CFLAGS} -DTHREAD_UNSAFE_BASENAME"
 	GF_CFLAGS="${GF_CFLAGS} -DTHREAD_UNSAFE_DIRNAME"
 	GF_GLUSTERFS_CFLAGS="${GF_CFLAGS}"
 	GF_LDADD="${ARGP_STANDALONE_LDADD}"

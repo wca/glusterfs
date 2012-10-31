@@ -920,7 +920,7 @@ AFR_BASENAME (const char *str)
         char *__tmp_str = NULL;
         char *__basename_str = NULL;
         __tmp_str = gf_strdup (str);
-        __basename_str = gf_strdup (basename (__tmp_str));
+        __basename_str = gf_strdup (compat_basename (__tmp_str));
         GF_FREE (__tmp_str);
         return __basename_str;
 }

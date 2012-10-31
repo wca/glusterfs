@@ -10,6 +10,10 @@
 #include "fuse-bridge.h"
 #if defined(GF_SOLARIS_HOST_OS)
 #include <sys/procfs.h>
+#elif defined(__FreeBSD__)
+#include <sys/types.h>
+#include <libutil.h>
+#include <sys/user.h>
 #else
 #include <sys/sysctl.h>
 #endif
@@ -206,6 +210,18 @@ out:
                         fclose (fp);
                  }
          }
+#elif defined(__FreeBSD__)
+        /* kinfo_proc works differently on FreeBSD than on Darwin/NetBSD. */
+        struct kinfo_proc *kp;
+        int i;
+
+        frame->root->ngrps = 0;
+        kp = kinfo_getproc(frame->root->pid);
+        if (kp == NULL)
+                return;
+        for (i = 0;i < kp->ki_ngroups; i++)
+                frame->root->groups[i] = kp->ki_groups[i];
+        frame->root->ngrps = kp->ki_ngroups;
 #elif defined(CTL_KERN) /* DARWIN and *BSD */
         /* 
            N.B. CTL_KERN is an enum on Linux. (Meaning, if it's not

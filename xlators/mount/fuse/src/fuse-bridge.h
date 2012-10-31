@@ -15,7 +15,6 @@
 #include <pthread.h>
 #include <stddef.h>
 #include <dirent.h>
-#include <errno.h>
 #include <sys/mount.h>
 #include <sys/time.h>
 #include <fnmatch.h>
@@ -25,6 +24,7 @@
 #include "config.h"
 #endif /* _CONFIG_H */
 
+#include "compat-errno.h"
 #include "glusterfs.h"
 #include "logging.h"
 #include "xlator.h"
