@@ -1,5 +1,6 @@
 
-EXTRA_DIST = glusterd-Debian glusterd-Redhat glusterd-SuSE glusterd.plist
+EXTRA_DIST = glusterd-Debian glusterd-FreeBSD glusterd-Redhat glusterd-SuSE \
+	     glusterd.plist
 
 CLEANFILES = 
 

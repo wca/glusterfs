@@ -210,6 +210,10 @@ AC_CHECK_HEADERS([sys/extattr.h])
 
 AC_CHECK_HEADERS([openssl/md5.h])
 
+AC_CHECK_HEADERS([perfuse.h])
+
+AC_CHECK_HEADERS([dirent.h])
+
 case $host_os in
   darwin*)
     if ! test "`/usr/bin/sw_vers | grep ProductVersion: | cut -f 2 | cut -d. -f2`" -ge 5; then
@@ -484,6 +488,14 @@ case $host_os in
 	GF_FUSE_LDADD="-lperfuse"
 	BUILD_FUSE_CLIENT=yes
 	LEXLIB=""
+	;;
+     *freebsd*)
+	GF_HOST_OS="GF_BSD_HOST_OS"
+	GF_CFLAGS="${ARGP_STANDALONE_CPPFLAGS}"
+	GF_CFLAGS="${GF_CFLAGS} -DTHREAD_UNSAFE_DIRNAME"
+	GF_GLUSTERFS_CFLAGS="${GF_CFLAGS}"
+	GF_LDADD="${ARGP_STANDALONE_LDADD}"
+	BUILD_FUSE_CLIENT=no
 	;;
      *bsd*)
         GF_HOST_OS="GF_BSD_HOST_OS"

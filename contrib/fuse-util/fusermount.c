@@ -20,7 +20,9 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <limits.h>
+#ifdef GF_LINUX_HOST_OS
 #include <mntent.h>
+#endif
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
@@ -82,7 +84,7 @@ static void restore_privs(void)
 	}
 }
 
-#ifndef IGNORE_MTAB
+#ifdef GF_LINUX_HOST_OS
 /*
  * Make sure that /etc/mtab is checked and updated atomically
  */
@@ -453,7 +455,7 @@ static int count_fuse_fs(void)
 }
 
 
-#else /* IGNORE_MTAB */
+#else /* GF_LINUX_HOST_OS */
 static int count_fuse_fs()
 {
 	return 0;
@@ -473,7 +475,7 @@ static int unmount_fuse(const char *mnt, int quiet, int lazy)
 {
 	return fuse_mnt_umount(progname, mnt, mnt, lazy);
 }
-#endif /* IGNORE_MTAB */
+#endif /* GF_LINUX_HOST_OS */
 
 static void strip_line(char *line)
 {

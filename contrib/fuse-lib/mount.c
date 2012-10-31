@@ -21,23 +21,22 @@
 #include <errno.h>
 #include <dirent.h>
 #include <signal.h>
-#ifndef __NetBSD__
+#ifdef GF_LINUX_HOST_OS
 #include <mntent.h>
-#endif /* __NetBSD__ */
+#endif /* GF_LINUX_HOST_OS */
 #include <sys/stat.h>
 #include <sys/poll.h>
 #include <sys/un.h>
 #include <sys/wait.h>
 #include <sys/mount.h>
 
-#ifdef __NetBSD__
+#ifdef HAVE_PERFUSE_H
 #include <perfuse.h>
-#define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
-#endif
+#endif /* HAVE_PERFUSE_H */
 
-#ifdef linux
+#ifdef GF_LINUX_HOST_OS
 #define _PATH_MOUNT "/bin/mount"
-#else /* NetBSD, MacOS X */
+#else /* NetBSD, MacOS X, FreeBSD */
 #define _PATH_MOUNT "/sbin/mount"
 #endif
 
@@ -71,10 +70,10 @@
  * - there are some other minor things
  */
 
-#ifndef __NetBSD__
 static int
 mtab_needs_update (const char *mnt)
 {
+#ifdef GF_LINUX_HOST_OS
         int res;
         struct stat stbuf;
 
@@ -102,12 +101,10 @@ mtab_needs_update (const char *mnt)
                 if (res == -1 && errno == EROFS)
                         return 0;
         }
+#endif /* !GF_LINUX_HOST_OS */
 
         return 1;
 }
-#else /* __NetBSD__ */
-#define mtab_needs_update(x) 1
-#endif /* __NetBSD__ */
 
 #ifndef FUSE_UTIL
 static
@@ -512,6 +509,10 @@ gf_fuse_unmount (const char *mountpoint, int fd)
  * Functions below are loosely modelled after similar functions of libfuse
  */
 
+#ifdef GF_BSD_HOST_OS
+#define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
+#endif
+
 #ifndef FUSE_UTIL
 static int
 fuse_mount_sys (const char *mountpoint, char *fsname, char *mnt_param, int fd)
@@ -530,8 +531,13 @@ fuse_mount_sys (const char *mountpoint, char *fsname, char *mnt_param, int fd)
 
                 goto out;
         }
+#ifdef __FreeBSD__
+        ret = mount (source, mountpoint, 0, mnt_param_mnt);
+#else
         ret = mount (source, mountpoint, fstype, 0,
                      mnt_param_mnt);
+#endif
+#ifdef GF_LINUX_HOST_OS
         if (ret == -1 && errno == ENODEV) {
                 /* fs subtype support was added by 79c0b2df aka
                    v2.6.21-3159-g79c0b2d. Probably we have an
@@ -546,12 +552,14 @@ fuse_mount_sys (const char *mountpoint, char *fsname, char *mnt_param, int fd)
                 ret = mount (source, mountpoint, fstype, 0,
                              mnt_param_mnt);
         }
+#endif /* GF_LINUX_HOST_OS */
+
         if (ret == -1)
                 goto out;
         else
                 mounted = 1;
 
-#ifndef __NetBSD__
+#ifdef GF_LINUX_HOST_OS
         if (geteuid () == 0) {
                 char *newmnt = fuse_mnt_resolve_path ("fuse", mountpoint);
 
@@ -570,7 +578,7 @@ fuse_mount_sys (const char *mountpoint, char *fsname, char *mnt_param, int fd)
                         goto out;
                 }
         }
-#endif /* __NetBSD__ */
+#endif /* GF_LINUX_HOST_OS */
 
 out:
         if (ret == -1) {
