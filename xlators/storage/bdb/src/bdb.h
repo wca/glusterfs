@@ -126,7 +126,7 @@
 #define MAKE_KEY_FROM_PATH(key, path) do {              \
                 char *tmp = alloca (strlen (path));     \
                 strcpy (tmp, path);                     \
-                key = basename (tmp);                   \
+                key = compat_basename (tmp);            \
         }while (0);
 
 /* IS_BDB_PRIVATE_FILE(name)

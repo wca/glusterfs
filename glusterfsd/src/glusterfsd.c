@@ -941,7 +941,7 @@ gf_get_process_mode (char *exec_name)
         uint8_t ret = 0;
 
         dup_execname = gf_strdup (exec_name);
-        base = basename (dup_execname);
+        base = compat_basename (dup_execname);
 
         if (!strncmp (base, "glusterfsd", 10)) {
                 ret = GF_SERVER_PROCESS;
@@ -1243,7 +1243,7 @@ parse_cmdline (int argc, char *argv[], glusterfs_ctx_t *ctx)
                         sys_unlink (cmd_args->log_file);
 
                         tmp_logfile_dyn = gf_strdup (tmp_logfile);
-                        tmp_logfilebase = basename (tmp_logfile_dyn);
+                        tmp_logfilebase = compat_basename (tmp_logfile_dyn);
                         ret = sys_symlink (tmp_logfilebase,
                                            cmd_args->log_file);
                         if (ret == -1) {

@@ -255,7 +255,7 @@ do_mode_posix_iface_xattr_write (struct state *state)
         dirc = strdup (state->prefix);
         basec = strdup (state->prefix);
         dname = dirname (dirc);
-        bname = basename (basec);
+        bname = compat_basename (basec);
 
         for (i=0; i<state->count; i++) {
                 char key[512];
@@ -291,7 +291,7 @@ do_mode_posix_iface_xattr_read (struct state *state)
         dirc = strdup (state->prefix);
         basec = strdup (state->prefix);
         dname = dirname (dirc);
-        bname = basename (basec);
+        bname = compat_basename (basec);
 
         for (i=0; i<state->count; i++) {
                 char key[512];

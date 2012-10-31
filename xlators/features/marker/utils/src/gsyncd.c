@@ -185,8 +185,9 @@ find_gsyncd (pid_t pid, pid_t ppid, char *name, void *data)
         ret = 0;
         switch (zeros) {
         case 2:
-                if ((strcmp (basename (buf), basename (PYTHON)) ||
-                     strcmp (basename (buf + strlen (buf) + 1), GSYNCD_PY)) == 0) {
+                if ((strcmp (compat_basename (buf), compat_basename (PYTHON)) ||
+                     strcmp (compat_basename (buf + strlen (buf) + 1),
+                             GSYNCD_PY)) == 0) {
                         ret = 1;
                         break;
                 }
@@ -331,7 +332,7 @@ main (int argc, char **argv)
                 return 1;
         }
 
-        b = basename (argv[0]);
+        b = compat_basename (argv[0]);
         for (i = invocables; i->name; i++) {
                 if (strcmp (b, i->name) == 0)
                         return i->invoker (argc, argv);

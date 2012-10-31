@@ -275,7 +275,7 @@ __do_path_resolve (loc_t *loc, libglusterfs_client_ctx_t *ctx,
 		}
 
 		pathname = strdup (new_loc.path);
-		file = basename (pathname);
+		file = compat_basename (pathname);
 
                 new_loc.inode = inode_search (ctx->itable, parent->ino, file);
                 if (new_loc.inode) {
@@ -310,7 +310,7 @@ __do_path_resolve (loc_t *loc, libglusterfs_client_ctx_t *ctx,
 
         if (lookup_basename) {
                 pathname = strdup (loc->path);
-                file = basename (pathname);
+                file = compat_basename (pathname);
 
                 inode = inode_search (ctx->itable, parent->ino, file);
                 if (!inode) {

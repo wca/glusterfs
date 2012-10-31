@@ -25,8 +25,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+/*
+ * Name changed to compat_basename_r because basename_r(3) in FreeBSD has an
+ * incompatible signature and behavior.
+ */
 char *
-basename_r (filename)
+compat_basename_r (filename)
      const char *filename;
 {
   char *p;

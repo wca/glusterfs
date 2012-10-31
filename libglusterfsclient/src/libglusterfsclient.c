@@ -2257,7 +2257,7 @@ glusterfs_glh_get (glusterfs_handle_t handle, const char *path, void *buf,
 	}
 
 	pathname = strdup (loc.path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
         if (op_ret < 0) {
@@ -2506,7 +2506,7 @@ glusterfs_get_async (glusterfs_handle_t handle,
 	}
 
 	pathname = strdup (path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
         op_ret = libgf_client_loc_fill (loc, ctx, 0, loc->parent->ino, name);
 	if (op_ret < 0) {
 		gf_log ("libglusterfsclient",
@@ -2670,7 +2670,7 @@ __glusterfs_glh_getxattr (glusterfs_handle_t handle, const char *path,
 	}
 
 	tmp = strdup (pathres);
-	file = basename (tmp);
+	file = compat_basename (tmp);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, file);
 	if (op_ret == -1) {
 		gf_log ("libglusterfsclient",
@@ -2996,7 +2996,7 @@ glusterfs_glh_open (glusterfs_handle_t handle, const char *path, int flags,...)
         }
 
 	pathname = strdup (pathres);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
 	if (ret == -1) {
@@ -3290,7 +3290,7 @@ __glusterfs_glh_setxattr (glusterfs_handle_t handle, const char *path,
         tmppath = strdup (pathres);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                        basename (tmppath));
+                                        compat_basename (tmppath));
         FREE (tmppath);
 	if (op_ret == -1) {
 		gf_log ("libglusterfsclient",
@@ -4856,7 +4856,7 @@ libgf_realpath_loc_fill (libglusterfs_client_ctx_t *ctx, char *link,
         target = strdup (targetloc->path);
         op_ret = libgf_client_loc_fill (targetloc, ctx, 0,
                                                targetloc->parent->ino,
-                                               basename (target));
+                                               compat_basename (target));
         if (op_ret == -1) {
                 errno = EINVAL;
                 goto out;
@@ -4903,7 +4903,7 @@ __glusterfs_stat (glusterfs_handle_t handle, const char *path,
 	}
 
 	pathname = strdup (loc.path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
 	if (op_ret == -1) {
@@ -5186,7 +5186,7 @@ glusterfs_glh_mkdir (glusterfs_handle_t handle, const char *path, mode_t mode)
         }
 
 	pathname = strdup (loc.path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
 	if (op_ret == -1) {
@@ -5299,7 +5299,7 @@ glusterfs_glh_rmdir (glusterfs_handle_t handle, const char *path)
 	}
 
 	pathname = strdup (loc.path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
 	if (op_ret == -1) {
@@ -5418,7 +5418,7 @@ glusterfs_glh_chmod (glusterfs_handle_t handle, const char *path, mode_t mode)
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
         if (op_ret == -1) {
                 errno = EINVAL;
                 goto out;
@@ -5493,7 +5493,7 @@ __glusterfs_chown (glusterfs_handle_t handle, const char *path, uid_t owner,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                        basename ((char *)name));
+                        compat_basename ((char *)name));
         if (op_ret == -1) {
                 errno = EINVAL;
                 goto out;
@@ -5606,7 +5606,7 @@ glusterfs_glh_opendir (glusterfs_handle_t handle, const char *path)
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                        basename (name));
+                        compat_basename (name));
         if (op_ret == -1) {
                 errno = EINVAL;
                 goto out;
@@ -5963,7 +5963,8 @@ libgf_client_link (libglusterfs_client_ctx_t *ctx, loc_t *old, loc_t *new)
 
         inode = stub->args.link_cbk.inode;
         sbuf = &stub->args.link_cbk.buf;
-        inode_link (inode, new->parent, basename ((char *)new->path), sbuf);
+        inode_link (inode, new->parent, compat_basename ((char *)new->path),
+                    sbuf);
         libgf_transform_iattr (ctx, inode, sbuf);
         inode_lookup (inode);
         libgf_update_iattr_cache (inode, LIBGF_UPDATE_STAT, sbuf);
@@ -6005,7 +6006,7 @@ glusterfs_glh_link (glusterfs_handle_t handle, const char *oldpath,
 
         oldname = strdup (old.path);
         op_ret = libgf_client_loc_fill (&old, ctx, 0, old.parent->ino,
-                                                basename (oldname));
+                                                compat_basename (oldname));
         if (op_ret == -1) {
                 errno = EINVAL;
                 goto out;
@@ -6033,7 +6034,7 @@ glusterfs_glh_link (glusterfs_handle_t handle, const char *oldpath,
         newname = strdup (new.path);
         new.inode = inode_ref (old.inode);
         libgf_client_loc_fill (&new, ctx, 0, new.parent->ino,
-                        basename (newname));
+                        compat_basename (newname));
         op_ret = libgf_client_link (ctx, &old, &new);
 
 out:
@@ -6157,7 +6158,7 @@ glusterfs_glh_statfs (glusterfs_handle_t handle, const char *path,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                        basename (name));
+                                        compat_basename (name));
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, "
@@ -6253,7 +6254,7 @@ glusterfs_glh_statvfs (glusterfs_handle_t handle, const char *path,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
 	if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, returning"
@@ -6387,7 +6388,7 @@ glusterfs_glh_rename (glusterfs_handle_t handle, const char *oldpath,
 
         oldname = strdup (oldloc.path);
         op_ret = libgf_client_loc_fill (&oldloc, ctx, 0, oldloc.parent->ino,
-                                        basename (oldname));
+                                        compat_basename (oldname));
 	if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1,"
@@ -6398,7 +6399,7 @@ glusterfs_glh_rename (glusterfs_handle_t handle, const char *oldpath,
 
         newname = strdup (newloc.path);
         op_ret = libgf_client_loc_fill (&newloc, ctx, 0, newloc.parent->ino,
-                                        basename (newname));
+                                        compat_basename (newname));
 	if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1,"
@@ -6495,7 +6496,7 @@ glusterfs_glh_utimes (glusterfs_handle_t handle, const char *path,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1"
@@ -6574,7 +6575,7 @@ glusterfs_glh_utime (glusterfs_handle_t handle, const char *path,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1,"
@@ -6699,7 +6700,7 @@ glusterfs_glh_mknod(glusterfs_handle_t handle, const char *path, mode_t mode,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
 	if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, "
@@ -6775,7 +6776,7 @@ glusterfs_glh_mkfifo (glusterfs_handle_t handle, const char *path, mode_t mode)
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, "
@@ -6882,7 +6883,7 @@ glusterfs_glh_unlink (glusterfs_handle_t handle, const char *path)
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
 	if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, "
@@ -7016,7 +7017,7 @@ glusterfs_glh_symlink (glusterfs_handle_t handle, const char *oldpath,
         newloc.inode = inode_new (ctx->itable);
         newname = strdup (newloc.path);
         op_ret = libgf_client_loc_fill (&newloc, ctx, 0, newloc.parent->ino,
-                                                basename (newname));
+                                                compat_basename (newname));
 
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
@@ -7144,7 +7145,7 @@ glusterfs_glh_readlink (glusterfs_handle_t handle, const char *path, char *buf,
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                                basename (name));
+                                                compat_basename (name));
         if (op_ret == -1) {
                 gf_log ("libglusterfsclient", GF_LOG_ERROR,
                                 "libgf_client_loc_fill returned -1, "
@@ -7451,7 +7452,7 @@ glusterfs_glh_remove (glusterfs_handle_t handle, const char *path)
 
         name = strdup (loc.path);
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino,
-                                        basename (name));
+                                        compat_basename (name));
         if (op_ret == -1)
                 goto out;
 
@@ -8072,7 +8073,7 @@ glusterfs_glh_truncate (glusterfs_handle_t handle, const char *path,
 	}
 
 	pathname = strdup (loc.path);
-	name = basename (pathname);
+	name = compat_basename (pathname);
 
         op_ret = libgf_client_loc_fill (&loc, ctx, 0, loc.parent->ino, name);
 	if (op_ret == -1) {
