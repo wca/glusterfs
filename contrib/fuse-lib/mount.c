@@ -66,6 +66,7 @@ gf_fuse_unmount (const char *mountpoint, int fd)
                 _exit (1);
         }
         waitpid (pid, NULL, 0);
+#endif
 }
 
 
@@ -117,7 +118,7 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname,
                        "only if glusterfs is compiled with "
                        "--enable-fusermount");
         return -1;
-#endif
+#else
 
         efsname = escape (fsname);
         if (!efsname) {
@@ -169,6 +170,7 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname,
  out:
         FREE (fm_mnt_params);
         return ret;
+#endif
 }
 
 /*

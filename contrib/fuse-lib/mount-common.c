@@ -23,7 +23,7 @@
  * see the commit log and per-function comments.
  */
 
-#ifndef __NetBSD__
+#ifdef GF_LINUX_HOST_OS
 /* FUSE: cherry-picked bd99f9cf */
 static int
 mtab_needs_update (const char *mnt)

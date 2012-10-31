@@ -3,6 +3,7 @@ autom4te.cache
 build
 config.*
 configure
+cscope*.out
 depcomp
 install-sh
 ltmain.sh
@@ -38,6 +39,7 @@ xlators/mount/fuse/utils/mount.glusterfs
 xlators/mount/fuse/utils/mount_glusterfs
 argp-standalone/libargp.a
 glusterfsd/src/glusterfsd
+libglusterfs/src/graph.lex.c
 libglusterfs/src/spec.lex.c
 libglusterfs/src/y.tab.c
 libglusterfs/src/y.tab.h

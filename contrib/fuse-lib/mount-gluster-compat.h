@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <signal.h>
-#ifndef __NetBSD__
+#ifdef HAVE_MNTENT_H
 #include <mntent.h>
 #endif /* __NetBSD__ */
 #include <sys/stat.h>
@@ -30,9 +30,15 @@
 #include <sys/wait.h>
 #include <sys/mount.h>
 
-#ifdef __NetBSD__
+#ifdef HAVE_PERFUSE_H
 #include <perfuse.h>
+#endif
+
+#ifdef GF_BSD_HOST_OS
 #define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
+#endif
+
+#ifndef MS_RDONLY
 #define MS_RDONLY MNT_RDONLY
 #endif
 
