@@ -9,6 +9,8 @@
 */
 
 
+#include <sys/types.h>
+#include "compat-errno.h"
 #include "glfs-internal.h"
 #include "glfs-mem-types.h"
 #include "syncop.h"

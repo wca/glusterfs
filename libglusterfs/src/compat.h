@@ -24,6 +24,11 @@
 #endif /* LLONG_MAX */
 
 
+/* If O_DSYNC isn't supported, don't try to use it. */
+#ifndef O_DSYNC
+#define	O_DSYNC 0
+#endif
+
 #ifdef GF_LINUX_HOST_OS
 
 #define UNIX_PATH_MAX 108
