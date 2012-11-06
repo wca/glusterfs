@@ -406,6 +406,7 @@ glusterd_crt_georep_folders (char *georepdir, glusterd_conf_t *conf)
 }
 #endif
 
+#if SYNCDAEMON_COMPILE
 static void
 runinit_gsyncd_setrx (runner_t *runner, glusterd_conf_t *conf)
 {
@@ -414,6 +415,7 @@ runinit_gsyncd_setrx (runner_t *runner, glusterd_conf_t *conf)
         runner_argprintf (runner, "%s/"GSYNC_CONF,conf->workdir);
         runner_add_arg (runner, "--config-set-rx");
 }
+#endif
 
 static int
 configure_syncdaemon (glusterd_conf_t *conf)
