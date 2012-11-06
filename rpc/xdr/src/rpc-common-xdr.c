@@ -20,8 +20,8 @@
 #include "xdr-common.h"
 #include "compat.h"
 
-#if defined(__GNUC__)
-#if __GNUC__ >= 4
+#if defined(GCC_VERSION)
+#if GCC_VERSION >= 40204
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #endif
@@ -37,6 +37,7 @@ bool_t
 xdr_auth_glusterfs_parms_v2 (XDR *xdrs, auth_glusterfs_parms_v2 *objp)
 {
 	register int32_t *buf;
+	char *groups_val = (char *)objp->groups.groups_val;
         buf = NULL;
 
 
@@ -55,7 +56,7 @@ xdr_auth_glusterfs_parms_v2 (XDR *xdrs, auth_glusterfs_parms_v2 *objp)
 		IXDR_PUT_U_LONG(buf, objp->uid);
 		IXDR_PUT_U_LONG(buf, objp->gid);
 		}
-		 if (!xdr_array (xdrs, (char **)&objp->groups.groups_val, (u_int *) &objp->groups.groups_len, ~0,
+		 if (!xdr_array (xdrs, &groups_val, (u_int *) &objp->groups.groups_len, ~0,
 			sizeof (u_int), (xdrproc_t) xdr_u_int))
 			 return FALSE;
 		 if (!xdr_bytes (xdrs, (char **)&objp->lk_owner.lk_owner_val, (u_int *) &objp->lk_owner.lk_owner_len, ~0))
@@ -76,7 +77,7 @@ xdr_auth_glusterfs_parms_v2 (XDR *xdrs, auth_glusterfs_parms_v2 *objp)
 		objp->uid = IXDR_GET_U_LONG(buf);
 		objp->gid = IXDR_GET_U_LONG(buf);
 		}
-		 if (!xdr_array (xdrs, (char **)&objp->groups.groups_val, (u_int *) &objp->groups.groups_len, ~0,
+		 if (!xdr_array (xdrs, &groups_val, (u_int *) &objp->groups.groups_len, ~0,
 			sizeof (u_int), (xdrproc_t) xdr_u_int))
 			 return FALSE;
 		 if (!xdr_bytes (xdrs, (char **)&objp->lk_owner.lk_owner_val, (u_int *) &objp->lk_owner.lk_owner_len, ~0))
@@ -90,7 +91,7 @@ xdr_auth_glusterfs_parms_v2 (XDR *xdrs, auth_glusterfs_parms_v2 *objp)
 		 return FALSE;
 	 if (!xdr_u_int (xdrs, &objp->gid))
 		 return FALSE;
-	 if (!xdr_array (xdrs, (char **)&objp->groups.groups_val, (u_int *) &objp->groups.groups_len, ~0,
+	 if (!xdr_array (xdrs, &groups_val, (u_int *) &objp->groups.groups_len, ~0,
 		sizeof (u_int), (xdrproc_t) xdr_u_int))
 		 return FALSE;
 	 if (!xdr_bytes (xdrs, (char **)&objp->lk_owner.lk_owner_val, (u_int *) &objp->lk_owner.lk_owner_len, ~0))
@@ -201,6 +202,7 @@ bool_t
 xdr_gf_prog_detail (XDR *xdrs, gf_prog_detail *objp)
 {
 	register int32_t *buf;
+	char *nextp = (char *)objp->next;
         buf = NULL;
 
 	 if (!xdr_string (xdrs, &objp->progname, ~0))
@@ -209,7 +211,7 @@ xdr_gf_prog_detail (XDR *xdrs, gf_prog_detail *objp)
 		 return FALSE;
 	 if (!xdr_u_quad_t (xdrs, &objp->progver))
 		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->next, sizeof (gf_prog_detail), (xdrproc_t) xdr_gf_prog_detail))
+	 if (!xdr_pointer (xdrs, &nextp, sizeof (gf_prog_detail), (xdrproc_t) xdr_gf_prog_detail))
 		 return FALSE;
 	return TRUE;
 }
@@ -218,6 +220,7 @@ bool_t
 xdr_gf_dump_rsp (XDR *xdrs, gf_dump_rsp *objp)
 {
 	register int32_t *buf;
+	char *progp = (char *)objp->prog;
         buf = NULL;
 
 	 if (!xdr_u_quad_t (xdrs, &objp->gfs_id))
@@ -226,7 +229,7 @@ xdr_gf_dump_rsp (XDR *xdrs, gf_dump_rsp *objp)
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->op_errno))
 		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->prog, sizeof (gf_prog_detail), (xdrproc_t) xdr_gf_prog_detail))
+	 if (!xdr_pointer (xdrs, &progp, sizeof (gf_prog_detail), (xdrproc_t) xdr_gf_prog_detail))
 		 return FALSE;
 	return TRUE;
 }

@@ -180,6 +180,7 @@ __gf_realloc (void *ptr, size_t size)
         char            *orig_ptr = NULL;
         xlator_t        *xl = NULL;
         uint32_t        type = 0;
+        char *          cptr = ptr;
 
         if (!gf_mem_acct_enable)
                 return REALLOC (ptr, size);
@@ -202,7 +203,7 @@ __gf_realloc (void *ptr, size_t size)
                 return NULL;
         }
 
-        gf_mem_set_acct_info (xl, (char **)&ptr, size, type);
+        gf_mem_set_acct_info (xl, &cptr, size, type);
 
         return (void *)ptr;
 }

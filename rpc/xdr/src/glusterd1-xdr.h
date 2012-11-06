@@ -20,8 +20,8 @@
 #include "xdr-common.h"
 #include "compat.h"
 
-#if defined(__GNUC__)
-#if __GNUC__ >= 4
+#if defined(GCC_VERSION)
+#if GCC_VERSION >= 40204
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #endif
