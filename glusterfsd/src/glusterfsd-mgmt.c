@@ -343,7 +343,7 @@ glusterfs_handle_translator_info_get (rpcsvc_request_t *req)
         uint32_t                 blk_size = 0;
         uint32_t                 blk_count = 0;
         gfd_vol_top_priv_t       *priv = NULL;
-        pthread_t                tid = -1;
+        pthread_t                tid;
 
         GF_ASSERT (req);
         this = THIS;
@@ -400,8 +400,7 @@ glusterfs_handle_translator_info_get (rpcsvc_request_t *req)
                                 "Thread create failed");
                         goto cont;
                 }
-                gf_log ("glusterd", GF_LOG_DEBUG, "Created new thread with "
-                        "tid %u", (unsigned int)tid);
+                gf_log ("glusterd", GF_LOG_DEBUG, "Created new thread");
                 goto out;
         }
 cont:
