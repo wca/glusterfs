@@ -345,6 +345,10 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname, char *mnt_param,
 }
 #endif
 
+#ifdef GF_BSD_HOST_OS
+#define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
+#endif
+
 #ifndef FUSE_UTIL
 static
 #endif
@@ -508,10 +512,6 @@ gf_fuse_unmount (const char *mountpoint, int fd)
 /*
  * Functions below are loosely modelled after similar functions of libfuse
  */
-
-#ifdef GF_BSD_HOST_OS
-#define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
-#endif
 
 #ifndef FUSE_UTIL
 static int
