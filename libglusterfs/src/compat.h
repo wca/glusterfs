@@ -335,7 +335,7 @@ dirent_size (struct dirent *entry)
 }
 
 #ifdef THREAD_UNSAFE_BASENAME
-char compat_basename_r(const char *path);
+char *compat_basename_r(const char *path);
 #define	compat_basename(path) compat_basename_r(path)
 #else
 static inline char *compat_basename(const char *path) { return basename(path); }
