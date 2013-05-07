@@ -18,12 +18,12 @@
 
 #include <rpc/rpc.h>
 
-#if defined(__NetBSD__)
+// #if defined(__NetBSD__) || defined(__FreeBSD__)
 #define xdr_u_quad_t xdr_u_int64_t
 #define xdr_quad_t   xdr_int64_t
 #define xdr_uint32_t xdr_u_int32_t
 #define xdr_uint64_t xdr_u_int64_t
-#endif
+// #endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,12 +33,12 @@ extern "C" {
 #define LM_MAXSTRLEN 1024
 #define MAXNAMELEN 1025
 
-#if defined(__NetBSD__)
+// #if defined(__NetBSD__) || defined(__FreeBSD__)
 #define xdr_u_quad_t xdr_u_int64_t
 #define xdr_quad_t   xdr_int64_t
 #define xdr_uint32_t xdr_u_int32_t
 #define xdr_uint64_t xdr_u_int64_t
-#endif
+// #endif
 
 /*
  * The following enums are actually bit encoded for efficient

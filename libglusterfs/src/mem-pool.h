@@ -91,15 +91,19 @@ void* __gf_default_realloc (void *oldptr, size_t size)
         return ptr;
 }
 
+#ifndef MALLOC
 #define MALLOC(size)       __gf_default_malloc(size)
+#endif
 #define CALLOC(cnt,size)   __gf_default_calloc(cnt,size)
 #define REALLOC(ptr,size)  __gf_default_realloc(ptr,size)
 
+#ifndef FREE
 #define FREE(ptr)                               \
         if (ptr != NULL) {                      \
                 free ((void *)ptr);             \
                 ptr = (void *)0xeeeeeeee;       \
         }
+#endif
 
 #define GF_CALLOC(nmemb, size, type) __gf_calloc (nmemb, size, type)
 

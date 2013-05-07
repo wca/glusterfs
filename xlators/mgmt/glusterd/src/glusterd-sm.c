@@ -16,7 +16,9 @@
 #include <sys/uio.h>
 #include <sys/resource.h>
 
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 #include "uuid.h"
 
 #include "fnmatch.h"

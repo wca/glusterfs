@@ -2151,7 +2151,7 @@ nfs3_write_resume (void *carg)
 	case UNSTABLE:
 		break;
 	case DATA_SYNC:
-		fd->flags |= O_DSYNC;
+		fd->flags |= O_FSYNC;
 		break;
 	case FILE_SYNC:
 		fd->flags |= O_SYNC;

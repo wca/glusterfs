@@ -11,8 +11,9 @@
 #include <sys/wait.h>
 #include "fuse-bridge.h"
 #include "mount-gluster-compat.h"
+#include "compat-errno.h"
 
-#ifdef __NetBSD__
+#if defined(__NetBSD__) || defined(__FreeBSD__)
 #undef open /* in perfuse.h, pulled from mount-gluster-compat.h */
 #endif
 

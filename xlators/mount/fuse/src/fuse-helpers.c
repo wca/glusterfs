@@ -14,6 +14,13 @@
 #include <sys/sysctl.h>
 #endif
 
+#ifdef __FreeBSD__
+#include <sys/user.h>
+#include <sys/param.h>
+#include <sys/types.h>
+#include <sys/ucred.h>
+#endif /* __FreeBSD__ */
+
 #ifndef GF_REQUEST_MAXGROUPS
 #define GF_REQUEST_MAXGROUPS    16
 #endif /* GF_REQUEST_MAXGROUPS */
@@ -226,9 +233,21 @@ out:
 
         if (sysctl(name, namelen, &kp, &kplen, NULL, 0) != 0)
                 return;
+#ifndef __FreeBSD__
         ngroups = MIN(kp.kp_eproc.e_ucred.cr_ngroups, GF_REQUEST_MAXGROUPS);
+#else
+		struct proc * paddr = kp.ki_paddr;
+		struct xucred * cred = (struct xucred *)paddr->p_ucred;
+		// struct xucred xcu;
+		// cru2x(cred, &xcu);
+		ngroups = MIN(cred->cr_ngroups, GF_REQUEST_MAXGROUPS);
+#endif /* __FreeBSD__ */
         for (i = 0; i < ngroups; i++)
-                frame->root->groups[i] = kp.kp_eproc.e_ucred.cr_groups[i];
+#ifndef __FreeBSD__
+			frame->root->groups[i] = kp.kp_eproc.e_ucred.cr_groups[i];
+#else
+		    frame->root->groups[i] = cred->cr_groups[i];
+#endif /* __FreeBSD__ */
         frame->root->ngrps = ngroups;
 #else
         frame->root->ngrps = 0;

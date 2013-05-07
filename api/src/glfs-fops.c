@@ -13,7 +13,7 @@
 #include "glfs-mem-types.h"
 #include "syncop.h"
 #include "glfs.h"
-
+#include "compat-errno.h"
 
 struct glfs_fd *
 glfs_open (struct glfs *fs, const char *path, int flags)

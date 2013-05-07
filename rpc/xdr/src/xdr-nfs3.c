@@ -12,12 +12,12 @@
 #include "mem-pool.h"
 #include "xdr-common.h"
 
-#if GF_DARWIN_HOST_OS
+// #if GF_DARWIN_HOST_OS || defined(__FreeBSD__)
 #define xdr_u_quad_t xdr_u_int64_t
 #define xdr_quad_t   xdr_int64_t
 #define xdr_uint32_t xdr_u_int32_t
 #define xdr_uint64_t xdr_u_int64_t
-#endif
+// #endif
 
 bool_t
 xdr_uint64 (XDR *xdrs, uint64 *objp)

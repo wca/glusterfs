@@ -17,7 +17,9 @@
 #include <sys/resource.h>
 #include <sys/mount.h>
 
-#include <libgen.h>
+// #ifndef __FreeBSD__
+// #include <libgen.h>
+// #endif
 #include "uuid.h"
 
 #include "fnmatch.h"

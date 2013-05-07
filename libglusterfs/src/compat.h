@@ -62,7 +62,9 @@
 #endif /* HAVE_SYS_XATTR_H */
 #include <limits.h>
 
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif /* __FreeBSD__ */
 
 #ifndef XATTR_CREATE
 enum {
@@ -107,6 +109,10 @@ enum {
 #define F_SETLK64       F_SETLK
 #define F_SETLKW64      F_SETLKW
 
+#ifndef _PATH_MOUNTED
+ #define _PATH_MOUNTED "/etc/mtab"
+#endif /* _PATH_MOUNTED */
+
 #endif /* GF_BSD_HOST_OS */
 
 #ifdef GF_DARWIN_HOST_OS
@@ -118,9 +124,6 @@ enum {
 #include <machine/endian.h>
 #include <sys/xattr.h>
 #include <limits.h>
-
-#include <libgen.h>
-
 
 #if __DARWIN_64_BIT_INO_T == 0
 #    error '64 bit ino_t is must for GlusterFS to work, Compile with "CFLAGS=-D__DARWIN_64_BIT_INO_T"'
@@ -180,7 +183,6 @@ int32_t gf_darwin_compat_setxattr (dict_t *dict);
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
-#include <libgen.h>
 #include <sys/mkdev.h>
 
 #ifndef lchmod

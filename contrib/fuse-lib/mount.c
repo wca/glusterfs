@@ -10,7 +10,7 @@
 #include "mount_util.h"
 #include "mount-gluster-compat.h"
 
-#ifdef GF_FUSERMOUNT
+#if defined(GF_FUSERMOUNT) && defined(FUSEMOUNT_DIR)
 #define FUSERMOUNT_PROG FUSERMOUNT_DIR "/fusermount-glusterfs"
 #else
 #define FUSERMOUNT_PROG "fusermount"
@@ -188,8 +188,16 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
 
                 goto out;
         }
+		#ifndef __FreeBSD__
         ret = mount (source, mountpoint, fstype, mountflags,
                      mnt_param_mnt);
+		#else
+		char *mnt_type;
+		ret = asprintf(&mnt_type,
+					   "fstype=%s,fspath=%s",
+					   fstype, source);
+		ret = mount (mnt_type, mountpoint, mountflags, mnt_param_mnt);
+        #endif
         if (ret == -1 && errno == ENODEV) {
                 /* fs subtype support was added by 79c0b2df aka
                    v2.6.21-3159-g79c0b2d. Probably we have an
@@ -201,8 +209,12 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
 
                         goto out;
                 }
+				#ifndef __FreeBSD__
                 ret = mount (source, mountpoint, fstype, 0,
                              mnt_param_mnt);
+				#else
+				ret = mount(mnt_type, mountpoint, 0, mnt_param_mnt);
+				#endif
         }
         if (ret == -1)
                 goto out;
@@ -248,7 +260,9 @@ out:
         FREE (mnt_param_mnt);
         if (source != fsname)
                 FREE (source);
-
+		#ifdef __FreeBSD__
+		FREE(mnt_type);
+		#endif
         return ret;
 }
 

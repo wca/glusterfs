@@ -18,7 +18,9 @@
 #include <sys/wait.h>
 #include <netdb.h>
 #include <signal.h>
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 
 #include <sys/utsname.h>
 

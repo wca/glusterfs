@@ -1246,10 +1246,18 @@ wb_writev (call_frame_t *frame, xlator_t *this, fd_t *fd, struct iovec *vector,
 	if (!conf->strict_O_DIRECT)
 		o_direct = 0;
 
+#ifndef __FreeBSD__
 	if (fd->flags & (O_SYNC|O_DSYNC|o_direct))
+#else
+	if (fd->flags & (O_FSYNC|o_direct))
+#endif /* __FreeBSD__ */
 		wb_disabled = 1;
 
+#ifndef __FreeBSD__
 	if (flags & (O_SYNC|O_DSYNC|O_DIRECT))
+#else
+	if (flags & (O_FSYNC|O_DIRECT))
+#endif /* __FreeBSD__ */
 		/* O_DIRECT flag in params of writev must _always_ be honored */
 		wb_disabled = 1;
 

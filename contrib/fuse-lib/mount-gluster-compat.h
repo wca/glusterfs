@@ -21,17 +21,18 @@
 #include <errno.h>
 #include <dirent.h>
 #include <signal.h>
-#ifndef __NetBSD__
+#if !defined(__NetBSD__) && !defined(__FreeBSD__)
 #include <mntent.h>
 #endif /* __NetBSD__ */
 #include <sys/stat.h>
 #include <sys/poll.h>
 #include <sys/un.h>
 #include <sys/wait.h>
+#include <sys/param.h>
 #include <sys/mount.h>
 
-#ifdef __NetBSD__
-#include <perfuse.h>
+#if defined(__NetBSD__) || defined(__FreeBSD__)
+// #include <perfuse.h>
 #define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
 #define MS_RDONLY MNT_RDONLY
 #endif
@@ -43,8 +44,12 @@
 #endif
 
 #ifdef FUSE_UTIL
+#ifndef MALLOC
 #define MALLOC(size) malloc (size)
+#endif
+#ifndef FREE
 #define FREE(ptr) free (ptr)
+#endif
 #define GFFUSE_LOGERR(...) fprintf (stderr, ## __VA_ARGS__)
 #else /* FUSE_UTIL */
 #include "glusterfs.h"

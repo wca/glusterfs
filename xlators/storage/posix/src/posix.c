@@ -19,7 +19,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <errno.h>
-#include <libgen.h>
+// #include <libgen.h>
 #include <pthread.h>
 #include <ftw.h>
 #include <sys/stat.h>
@@ -2146,8 +2146,11 @@ posix_writev (call_frame_t *frame, xlator_t *this, fd_t *fd,
                 /* wiretv successful, we also need to get the stat of
                  * the file we wrote to
                  */
-
-                if (flags & (O_SYNC|O_DSYNC)) {
+#ifndef __FreeBSD__
+			if (flags & (O_SYNC|O_DSYNC)) {
+#else
+				if (flags & (O_FSYNC)) {
+#endif /* __FreeBSD__ */
                         ret = fsync (_fd);
 			if (ret) {
 				gf_log (this->name, GF_LOG_ERROR,

@@ -53,6 +53,9 @@
 #ifdef GF_DARWIN_HOST_OS
 #define FUSE_OP_HIGH (FUSE_DESTROY + 1)
 #endif
+#ifdef __FreeBSD__
+#define FUSE_OP_HIGH (FUSE_READDIRPLUS + 1)
+#endif
 #define GLUSTERFS_XATTR_LEN_MAX  65536
 
 #define MAX_FUSE_PROC_DELAY 1

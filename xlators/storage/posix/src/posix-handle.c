@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <libgen.h>
+// #include <libgen.h>
 #ifdef GF_LINUX_HOST_OS
 #include <alloca.h>
 #endif
@@ -25,7 +25,7 @@
 #include "posix.h"
 #include "xlator.h"
 #include "syscall.h"
-
+#include "compat-errno.h"
 
 #define HANDLE_PFX ".glusterfs"
 #define TRASH_DIR "landfill"

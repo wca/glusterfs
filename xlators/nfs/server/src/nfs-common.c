@@ -34,7 +34,9 @@
 #include "rpcsvc.h"
 #include "iatt.h"
 
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 
 xlator_t *
 nfs_xlid_to_xlator (xlator_list_t *cl, uint8_t xlid)

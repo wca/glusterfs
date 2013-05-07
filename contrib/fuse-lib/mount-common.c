@@ -8,6 +8,7 @@
 */
 
 #include "mount-gluster-compat.h"
+#include "compat.h"
 
 /*
  * These functions (and gf_fuse_umount() in mount.c)

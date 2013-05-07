@@ -36,7 +36,9 @@
 #include "nfs-common.h"
 #include "nfs3-helpers.h"
 #include "nfs-mem-types.h"
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 #include <semaphore.h>
 
 void

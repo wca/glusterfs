@@ -9,7 +9,7 @@
 */
 
 
-#include <libgen.h>
+// #include <libgen.h>
 #include <unistd.h>
 #include <fnmatch.h>
 #include <sys/time.h>
@@ -477,8 +477,11 @@ afr_writev (call_frame_t *frame, xlator_t *this, fd_t *fd,
 	/* detect here, but set it in writev_wind_cbk *after* the unstable
 	   write is performed
 	*/
-	local->stable_write = !!((fd->flags|flags)&(O_SYNC|O_DSYNC));
-
+#ifndef __FreeBSD__
+				local->stable_write = !!((fd->flags|flags)&(O_SYNC|O_DSYNC));
+#else
+				local->stable_write = !!((fd->flags|flags)&(O_FSYNC));
+#endif /* __FreeBSD__ */
         afr_open_fd_fix (fd, this);
 
         afr_do_writev (frame, this);

@@ -18,7 +18,9 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <pthread.h>
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 
 #include "uuid.h"
 

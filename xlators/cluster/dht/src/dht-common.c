@@ -24,7 +24,7 @@
 #include "byte-order.h"
 
 #include <sys/time.h>
-#include <libgen.h>
+// #include <libgen.h>
 
 int
 dht_aggregate (dict_t *this, char *key, data_t *value, void *data)

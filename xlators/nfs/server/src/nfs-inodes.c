@@ -30,7 +30,9 @@
 #include "nfs-fops.h"
 #include "xlator.h"
 
+#ifndef __FreeBSD__
 #include <libgen.h>
+#endif
 
 #define inodes_nfl_to_prog_data(nflocal, pcbk, fram)                    \
         do {                                                            \

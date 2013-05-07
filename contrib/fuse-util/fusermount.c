@@ -10,6 +10,7 @@
 #include <config.h>
 
 #include "mount_util.h"
+#include "../fuse-lib/mount-gluster-compat.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,10 +25,13 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
+#ifndef __FreeBSD__
 #include <sys/fsuid.h>
+#endif
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sched.h>
+#include "compat.h"
 
 #define FUSE_DEVFD_ENV		"_FUSE_DEVFD"
 #define FUSE_COMMFD_ENV		"_FUSE_COMMFD"
@@ -46,7 +50,33 @@
 #ifndef MS_PRIVATE
 #define MS_PRIVATE (1<<18)
 #endif
-
+#ifndef MS_BIND
+#define MS_BIND 4096
+#endif
+#ifndef MS_RDONLY
+#define MS_RDONLY        1      /* Mount read-only */
+#endif
+#ifndef MS_NOSUID
+#define MS_NOSUID        2      /* Ignore suid and sgid bits */
+#endif
+#ifndef MS_NODEV
+#define MS_NODEV         4     /* Disallow access to device special files */
+#endif
+#ifndef MS_NOEXEC
+#define MS_NOEXEC        8      /* Disallow program execution */
+#endif
+#ifndef MS_SYNCHRONOUS
+#define MS_SYNCHRONOUS  16      /* Writes are synced at once */
+#endif
+#ifndef MS_REMOUNT
+#define MS_REMOUNT      32      /* Alter flags of a mounted FS */
+#endif
+#ifndef MS_MANDLOCK
+#define MS_MANDLOCK     64      /* Allow mandatory locks on an FS */
+#endif
+#ifndef MS_NOATIME
+#define MS_NOATIME      1024    /* Do not update access times. */
+#endif
 static const char *progname;
 
 static int user_allow_other = 0;
@@ -233,7 +263,14 @@ static int check_is_mount_child(void *p)
 	struct mntent *entp;
 	int count;
 
+	#ifndef __FreeBSD__
 	res = mount("", "/", "", MS_PRIVATE | MS_REC, NULL);
+	#else
+	char * mnt_type;
+	asprintf(&mnt_type, "fstype=%s,fspath=%s", "", "");
+	res = mount(mnt_type, "/", MS_PRIVATE | MS_REC, NULL);
+	FREE(mnt_type);
+	#endif
 	if (res == -1) {
 		fprintf(stderr, "%s: failed to mark mounts private: %s\n",
 			progname, strerror(errno));
@@ -259,7 +296,15 @@ static int check_is_mount_child(void *p)
 		return 1;
 	}
 
+	#ifndef __FreeBSD__
 	res = mount(".", "/", "", MS_BIND | MS_REC, NULL);
+	#else
+	// char * mnt_type;
+	asprintf(&mnt_type, "fstype=%s,fspath=%s", "", ".");
+	res = mount(mnt_type, "/", MS_BIND| MS_REC, NULL);
+	FREE(mnt_type);
+	#endif
+
 	if (res == -1) {
 		fprintf(stderr, "%s: failed to bind parent to /: %s\n",
 			progname, strerror(errno));
@@ -791,7 +836,18 @@ static int do_mount(const char *mnt, char **typep, mode_t rootmode,
 	else
 		strcpy(source, subtype ? subtype : dev);
 
-	res = mount(source, mnt, type, flags, optbuf);
+	// res = mount(source, mnt, type, flags, optbuf);
+	#ifndef __FreeBSD__
+		ret = mount (source, mnt, type, flags,
+					 optbuf);
+	#else
+		char *mnt_type;
+	res = asprintf(&mnt_type,
+				   "fstype=%s,fspath=%s",
+					type, source);
+	res = mount (mnt_type, mnt, flags, optbuf);
+	FREE(mnt_type);
+    #endif
 	if (res == -1 && errno == ENODEV && subtype) {
 		/* Probably missing subtype support */
 		strcpy(type, blkdev ? "fuseblk" : "fuse");
@@ -802,13 +858,35 @@ static int do_mount(const char *mnt, char **typep, mode_t rootmode,
 			strcpy(source, type);
 		}
 
-		res = mount(source, mnt, type, flags, optbuf);
+		// res = mount(source, mnt, type, flags, optbuf);
+    #ifndef __FreeBSD__
+	res = mount (source, mnt, type, flags,
+				 optbuf);
+	#else
+		char *mnt_type;
+	res = asprintf(&mnt_type,
+				   "fstype=%s,fspath=%s",
+					type, source);
+	res = mount (mnt_type, mnt, flags, optbuf);
+	FREE(mnt_type);
+    #endif
 	}
 	if (res == -1 && errno == EINVAL) {
 		/* It could be an old version not supporting group_id */
 		sprintf(d, "fd=%i,rootmode=%o,user_id=%i",
 			fd, rootmode, getuid());
-		res = mount(source, mnt, type, flags, optbuf);
+		// res = mount(source, mnt, type, flags, optbuf);
+        #ifndef __FreeBSD__
+		res = mount (source, mnt, type, flags,
+					 optbuf);
+        #else
+		char *mnt_type;
+		res = asprintf(&mnt_type,
+				   "fstype=%s,fspath=%s",
+					type, source);
+		res = mount (mnt_type, mnt, flags, optbuf);
+		FREE(mnt_type);
+        #endif
 	}
 	if (res == -1) {
 		int errno_save = errno;
@@ -1168,7 +1246,7 @@ int main(int argc, char *argv[])
 	int res;
 	char *origmnt;
 	char *mnt;
-	static int unmount = 0;
+	static int unmount_ = 0;
 	static int lazy = 0;
 	static int quiet = 0;
 	char *devfd;
@@ -1206,7 +1284,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'u':
-			unmount = 1;
+			unmount_ = 1;
 			break;
 
 		case 'z':
@@ -1222,7 +1300,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (lazy && !unmount) {
+	if (lazy && !unmount_) {
 		fprintf(stderr, "%s: -z can only be used with -u\n", progname);
 		exit(1);
 	}
@@ -1252,7 +1330,7 @@ int main(int argc, char *argv[])
 		exit(1);
 
 	umask(033);
-	if (unmount) {
+	if (unmount_) {
 		if (geteuid() == 0)
 			res = unmount_fuse(mnt, quiet, lazy);
 		else {
