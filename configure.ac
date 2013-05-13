@@ -303,7 +303,8 @@ AC_SUBST(FUSE_CLIENT_SUBDIR)
 AC_ARG_ENABLE([fusermount],
 	      AC_HELP_STRING([--disable-fusermount],
 			     [Use system's fusermount]))
-
+if test $host_os = "linux"; then
+	echo "shit"
 BUILD_FUSERMOUNT="yes"
 if test "x$enable_fusermount" = "xno"; then
   BUILD_FUSERMOUNT="no"
@@ -311,7 +312,10 @@ else
   AC_DEFINE(GF_FUSERMOUNT, 1, [Use our own fusermount])
   FUSERMOUNT_SUBDIR="contrib/fuse-util"
 fi
-
+else
+	BUILD_FUSERMOUNT="no"
+	echo "fuck"
+fi
 AC_SUBST(FUSERMOUNT_SUBDIR)
 #end FUSERMOUNT section
 
