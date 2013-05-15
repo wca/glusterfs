@@ -15,7 +15,9 @@
 #include "xlator.h"
 #include "defaults.h"
 
+#ifdef HAVE_BACKTRACE
 #include <execinfo.h>
+#endif
 
 #define NUM_FRAMES 20
 
@@ -27,20 +29,14 @@ enum {
         PROT_ACT_REJECT,
 };
 
-void
-pcli_print_trace (char *name, call_frame_t *frame)
+static inline void
+pcli_print_backtrace(void)
 {
+#ifdef HAVE_BACKTRACE
         void    *frames[NUM_FRAMES];
-        char    **symbols;
-        int     size;
-        int     i;
-
-        gf_log (name, GF_LOG_INFO, "Translator stack:");
-        while (frame) {
-                gf_log (name, GF_LOG_INFO, "%s (%s)",
-                        frame->wind_from, frame->this->name);
-                frame = frame->next;
-        }
+	char	**symbols;
+	int	size;
+	int	i;
 
         size = backtrace(frames,NUM_FRAMES);
         if (size <= 0) {
@@ -56,6 +52,19 @@ pcli_print_trace (char *name, call_frame_t *frame)
                 gf_log (name, GF_LOG_INFO, "%s", symbols[i]);
         }
         free(symbols);
+#endif
+}
+
+void
+pcli_print_trace (char *name, call_frame_t *frame)
+{
+        gf_log (name, GF_LOG_INFO, "Translator stack:");
+        while (frame) {
+                gf_log (name, GF_LOG_INFO, "%s (%s)",
+                        frame->wind_from, frame->this->name);
+                frame = frame->next;
+        }
+	pcli_print_backtrace();
 }
 
 int32_t
