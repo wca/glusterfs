@@ -18,7 +18,6 @@
 #include <sys/user.h>
 #include <sys/param.h>
 #include <sys/types.h>
-#include <sys/ucred.h>
 #endif /* __FreeBSD__ */
 
 #ifndef GF_REQUEST_MAXGROUPS
@@ -236,17 +235,15 @@ out:
 #ifndef __FreeBSD__
         ngroups = MIN(kp.kp_eproc.e_ucred.cr_ngroups, GF_REQUEST_MAXGROUPS);
 #else
-		struct proc * paddr = kp.ki_paddr;
-		struct xucred * cred = (struct xucred *)paddr->p_ucred;
-		// struct xucred xcu;
-		// cru2x(cred, &xcu);
-		ngroups = MIN(cred->cr_ngroups, GF_REQUEST_MAXGROUPS);
+		int gidsetlen = NGROUPS_MAX + 1;
+		gid_t * gidset;
+		ngroups = MIN(getgroups(gidsetlen, gidset), GF_REQUEST_MAXGROUPS);
 #endif /* __FreeBSD__ */
         for (i = 0; i < ngroups; i++)
 #ifndef __FreeBSD__
 			frame->root->groups[i] = kp.kp_eproc.e_ucred.cr_groups[i];
 #else
-		    frame->root->groups[i] = cred->cr_groups[i];
+		    frame->root->groups[i] = gidset[i];
 #endif /* __FreeBSD__ */
         frame->root->ngrps = ngroups;
 #else
