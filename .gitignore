@@ -23,6 +23,7 @@ Makefile
 stamp-h1
 
 # Generated files
+cli/src/gluster
 ufo/.tox
 ufo/test/unit/.coverage
 contrib/uuid/uuid_types.h
