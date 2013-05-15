@@ -72,6 +72,7 @@ gf_fuse_unmount (const char *mountpoint, int fd)
 
 /* gluster-specific routines */
 
+#ifdef GF_FUSERMOUNT
 static char *
 escape (char *s)
 {
@@ -100,18 +101,13 @@ escape (char *s)
 
         return e;
 }
+#endif
 
 static int
 fuse_mount_fusermount (const char *mountpoint, char *fsname,
                        unsigned long mountflags, char *mnt_param,
                        int fd)
 {
-        int  pid = -1;
-        int  res = 0;
-        int  ret = -1;
-        char *fm_mnt_params = NULL;
-        char *efsname = NULL;
-
 #ifndef GF_FUSERMOUNT
         GFFUSE_LOGERR ("Mounting via helper utility "
                        "(unprivileged mounting) is supported "
@@ -119,6 +115,11 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname,
                        "--enable-fusermount");
         return -1;
 #else
+        int  pid = -1;
+        int  res = 0;
+        int  ret = -1;
+        char *fm_mnt_params = NULL;
+        char *efsname = NULL;
 
         efsname = escape (fsname);
         if (!efsname) {
