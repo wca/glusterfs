@@ -440,7 +440,6 @@ if test "x${ENABLE_SYSTEMTAP}" = "xyes"; then
 fi
 
 if test "x${DTRACE}" = "xyes" -a "x${SDT_H_FOUND}" = "xyes"; then
-    AC_MSG_CHECKING([x"${DTRACE}"xy"${SDT_H_FOUND}"y])
     AC_DEFINE([HAVE_SYSTEMTAP], [1], [Define to 1 if using  probes.])
     BUILD_SYSTEMTAP=yes
 fi
@@ -474,13 +473,15 @@ if test "x${have_malloc_stats}" = "xyes"; then
 fi
 AC_SUBST(HAVE_MALLOC_STATS)
 
+CFLAGS="${CFLAGS} -Wno-pragmas"
+
 dnl Linux, Solaris, Cygwin
 AC_CHECK_MEMBERS([struct stat.st_atim.tv_nsec])
 dnl FreeBSD, NetBSD
 AC_CHECK_MEMBERS([struct stat.st_atimespec.tv_nsec])
 case $host_os in
 	*netbsd*)
-	CFLAGS=-D_INCOMPLETE_XOPEN_C063
+	CFLAGS="${CFLAGS} -D_INCOMPLETE_XOPEN_C063"
 	;;
 esac
 AC_CHECK_FUNC([linkat], [have_linkat=yes])
@@ -535,19 +536,18 @@ AC_SUBST(GF_DISTRIBUTION)
 
 GF_HOST_OS=""
 GF_LDFLAGS="-rdynamic"
-CFLAGS="-g"
 
-# check for gcc -Werror=format-security
-saved_CFLAGS=$CFLAGS
-CFLAGS="-Wformat -Werror=format-security"
-AC_MSG_CHECKING([whether $CC accepts -Werror=format-security])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [cc_werror_format_security=yes], [cc_werror_format_security=no])
-echo $cc_werror_format_security
-if test "x$cc_werror_format_security" = "xno"; then
-    CFLAGS="$saved_CFLAGS"
-else
-    CFLAGS="$saved_CFLAGS $CFLAGS"
-fi
+AC_DEFUN([GF_ADD_CFLAGS], [
+    saved_CFLAGS=$CFLAGS
+    CFLAGS=$1
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+        [echo yes; CFLAGS="$saved_CFLAGS $CFLAGS"],
+	[echo no; CFLAGS="$CFLAGS"])
+])
+CFLAGS="${CFLAGS} -g"
+GF_ADD_CFLAGS(["-Werror-implicit-function-declaration"])
+GF_ADD_CFLAGS(["-Wformat -Werror=format-security"])
 
 BUILD_FUSERMOUNT="no"
 
@@ -650,6 +650,7 @@ if test "x$LIBAIO" != "x"; then
    BUILD_LIBAIO=yes
 fi
 
+GF_CFLAGS="${GF_CFLAGS} ${CFLAGS}"
 
 BUILD_GLUPY=no
 AC_CHECK_LIB([python2.6],[PyImport_Import],[BUILD_GLUPY=yes])
