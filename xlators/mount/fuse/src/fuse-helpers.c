@@ -236,14 +236,16 @@ out:
         ngroups = MIN(kp.kp_eproc.e_ucred.cr_ngroups, GF_REQUEST_MAXGROUPS);
 #else
 		int gidsetlen = NGROUPS_MAX + 1;
-		gid_t * gidset;
+		gid_t * gidset = NULL;
 		ngroups = MIN(getgroups(gidsetlen, gidset), GF_REQUEST_MAXGROUPS);
 #endif /* __FreeBSD__ */
-        for (i = 0; i < ngroups; i++)
 #ifndef __FreeBSD__
+        for (i = 0; i < ngroups; i++)
 			frame->root->groups[i] = kp.kp_eproc.e_ucred.cr_groups[i];
 #else
+		for (i = 0; i < ngroups; i++) 
 		    frame->root->groups[i] = gidset[i];
+		FREE(gidset);
 #endif /* __FreeBSD__ */
         frame->root->ngrps = ngroups;
 #else
