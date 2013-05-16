@@ -20,6 +20,7 @@
 #include "config.h"
 #endif
 
+#include <pthread.h>
 #include "logging.h"
 #include "rpc-transport.h"
 #include "glusterfs.h"
