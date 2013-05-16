@@ -38,6 +38,13 @@
 #define umount2(dir, flags) unmount(dir, ((flags) != 0) ? MNT_FORCE : 0)
 #endif
 
+#ifdef __FreeBSD__
+#define os_mount(source, mountpoint, fstype, mountflags, mnt_param_mnt) \
+	mount (source, mountpoint, mountflags, mnt_param_mnt)
+#else
+#define	os_mount mount
+#endif
+
 #ifndef MS_RDONLY
 #define MS_RDONLY MNT_RDONLY
 #endif

@@ -178,53 +178,34 @@ fuse_mount_fusermount (const char *mountpoint, char *fsname,
  * Functions below are loosely modelled after similar functions of libfuse
  */
 
-static int
-fuse_mount_sys (const char *mountpoint, char *fsname,
-                unsigned long mountflags, char *mnt_param, int fd)
+static inline int
+fuse_retry_mount(const char *mountpoint, char *mnt_param_mnt)
 {
-        int ret = -1;
-        unsigned mounted = 0;
-        char *mnt_param_mnt = NULL;
-        char *fstype = "fuse.glusterfs";
-        char *source = fsname;
+#ifdef GF_LINUX_HOST_OS
+	int ret;
+	char *source;
 
-        ret = asprintf (&mnt_param_mnt,
-                        "%s,fd=%i,rootmode=%o,user_id=%i,group_id=%i",
-                        mnt_param, fd, S_IFDIR, getuid (), getgid ());
-        if (ret == -1) {
-                GFFUSE_LOGERR ("Out of memory");
-
-                goto out;
-        }
-#ifdef __FreeBSD__
-        ret = mount (source, mountpoint, mountflags, mnt_param_mnt);
+	/* fs subtype support was added by 79c0b2df aka
+	   v2.6.21-3159-g79c0b2d. Probably we have an
+	   older kernel ... */
+	ret = asprintf (&source, "glusterfs#%s", fsname);
+	if (ret == -1)
+		GFFUSE_LOGERR ("Out of memory");
+	else
+		ret = mount (source, mountpoint, "fuse", 0, mnt_param_mnt);
+	FREE(source);
+	return (ret);
 #else
-        ret = mount (source, mountpoint, fstype, mountflags,
-                     mnt_param_mnt);
-#endif
-#ifdef GF_LINUX_HOST_OS
-        if (ret == -1 && errno == ENODEV) {
-                /* fs subtype support was added by 79c0b2df aka
-                   v2.6.21-3159-g79c0b2d. Probably we have an
-                   older kernel ... */
-                fstype = "fuse";
-                ret = asprintf (&source, "glusterfs#%s", fsname);
-                if (ret == -1) {
-                        GFFUSE_LOGERR ("Out of memory");
-
-                        goto out;
-                }
-                ret = mount (source, mountpoint, fstype, 0,
-                             mnt_param_mnt);
-        }
+	return 0;
 #endif /* GF_LINUX_HOST_OS */
+}
 
-        if (ret == -1)
-                goto out;
-        else
-                mounted = 1;
-
+static inline int
+fuse_mount_add(char *source)
+{
 #ifdef GF_LINUX_HOST_OS
+	int ret = 0;
+
         if (geteuid () == 0) {
                 char *newmnt = fuse_mnt_resolve_path ("fuse", mountpoint);
                 char *mnt_param_mtab = NULL;
@@ -253,7 +234,43 @@ fuse_mount_sys (const char *mountpoint, char *fsname,
                         goto out;
                 }
         }
+out:
+	return (ret);
+#else
+	return (0);
 #endif /* GF_LINUX_HOST_OS */
+}
+
+#define	FUSE_FSTYPE "fuse.glusterfs"
+
+static int
+fuse_mount_sys (const char *mountpoint, char *fsname,
+                unsigned long mountflags, char *mnt_param, int fd)
+{
+        int ret = -1;
+        unsigned mounted = 0;
+        char *mnt_param_mnt = NULL;
+        char *source = fsname;
+
+        ret = asprintf (&mnt_param_mnt,
+                        "%s,fd=%i,rootmode=%o,user_id=%i,group_id=%i",
+                        mnt_param, fd, S_IFDIR, getuid (), getgid ());
+        if (ret == -1) {
+                GFFUSE_LOGERR ("Out of memory");
+
+                goto out;
+        }
+        ret = os_mount (source, mountpoint, FUSE_FSTYPE, mountflags,
+			mnt_param_mnt);
+        if (ret == -1 && errno == ENODEV)
+		ret = fuse_retry_mount(mountpoint, mnt_param_mnt);
+
+        if (ret == -1)
+                goto out;
+        else
+                mounted = 1;
+
+	ret = fuse_mount_add(source);
 
 out:
         if (ret == -1) {
