@@ -30,7 +30,9 @@
 void trap (void);
 
 #define GF_UNIVERSAL_ANSWER 42    /* :O */
+#ifndef TMP_MAX
 #define TMP_MAX              238328
+#endif
 
 /* To solve type punned error */
 #define VOID(ptr) ((void **) ((void *) ptr))
