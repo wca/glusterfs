@@ -1370,8 +1370,8 @@ parse_cmdline (int argc, char *argv[], glusterfs_ctx_t *ctx)
                 ret = stat (cmd_args->volfile, &stbuf);
                 if (ret) {
                         gf_log ("glusterfs", GF_LOG_CRITICAL,
-                                "ERROR: parsing the volfile failed (%s)\n",
-                                strerror (errno));
+                                "ERROR: parsing volfile %s failed (%s)\n",
+                                cmd_args->volfile, strerror (errno));
                         /* argp_usage (argp.) */
                         fprintf (stderr, "USAGE: %s [options] [mountpoint]\n",
                                  argv[0]);
