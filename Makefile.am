@@ -3,7 +3,7 @@ EXTRA_DIST = autogen.sh \
 	INSTALL README AUTHORS THANKS NEWS \
 	glusterfs.spec glusterfs-api.pc.in
 
-SUBDIRS = argp-standalone libglusterfs rpc api xlators glusterfsd \
+SUBDIRS = $(ARGP_STANDALONE_SUBDIR) libglusterfs rpc api xlators glusterfsd \
 	$(FUSERMOUNT_SUBDIR) doc extras cli
 
 pkgconfigdir = @pkgconfigdir@
