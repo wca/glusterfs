@@ -479,7 +479,7 @@ posix_gfid_set (xlator_t *this, const char *path, loc_t *loc, dict_t *xattr_req)
         }
 
         ret = sys_lsetxattr (path, GFID_XATTR_KEY, uuid_req, 16, XATTR_CREATE);
-        if (ret != 0) {
+        if (ret == -1) {
                 gf_log (this->name, GF_LOG_WARNING,
                         "setting GFID on %s failed (%s)", path,
                         strerror (errno));
@@ -917,16 +917,20 @@ posix_acl_xattr_set (xlator_t *this, const char *path, dict_t *xattr_req)
         if (data) {
                 ret = sys_lsetxattr (path, "system.posix_acl_access",
                                      data->data, data->len, 0);
-                if (ret != 0)
+                if (ret != -1) {
+			ret = 0;
                         goto out;
+		}
         }
 
         data = dict_get (xattr_req, "system.posix_acl_default");
         if (data) {
                 ret = sys_lsetxattr (path, "system.posix_acl_default",
                                      data->data, data->len, 0);
-                if (ret != 0)
+                if (ret != -1) {
+			ret = 0;
                         goto out;
+		}
         }
 
 out:

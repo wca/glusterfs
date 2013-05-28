@@ -5131,7 +5131,7 @@ glusterd_brick_create_path (char *host, char *path, uuid_t uuid,
         /* Check for xattr support in backend fs */
         ret = sys_lsetxattr (path, "trusted.glusterfs.test",
                              "working", 8, 0);
-        if (ret) {
+        if (ret == -1) {
                 snprintf (msg, sizeof (msg), "Glusterfs is not"
                           " supported on brick: %s:%s.\nSetting"
                           " extended attributes failed, reason:"
@@ -5154,7 +5154,7 @@ glusterd_brick_create_path (char *host, char *path, uuid_t uuid,
 
         ret = sys_lsetxattr (path, GF_XATTR_VOL_ID_KEY, uuid, 16,
                              XATTR_CREATE);
-        if (ret) {
+        if (ret == -1) {
                 snprintf (msg, sizeof (msg), "Failed to set extended "
                           "attributes %s, reason: %s",
                           GF_XATTR_VOL_ID_KEY, strerror (errno));
